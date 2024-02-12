@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histogramme des Commits par Minute</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+    <div id="chart_div"></div>
+    <script>
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            fetch('/commits')
+                .then(response => response.json())
+                .then(data => {
+                    var dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn('string', 'Minute');
+                    dataTable.addColumn('number', 'Commits');
+                    data.results.forEach(entry => {
+                        dataTable.addRow([entry.minute.toString(), entry.commits]);
+                    });
+
+                    var options = {
+                        title: 'Commits par Minute',
+                        legend: { position: 'none' },
+                        hAxis: { title: 'Minute' },
+                        vAxis: { title: 'Commits' }
+                    };
+
+                    var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+                    chart.draw(dataTable, options);
+                });
+        }
+    </script>
+</body>
+</html>
