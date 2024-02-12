@@ -42,5 +42,27 @@ def hello_world():
     return render_template('hello.html')
 
 
+
+@app.route('/commitus/')
+def get_commits():
+    # Récupérer les données JSON depuis l'URL GitHub
+    url = 'https://api.github.com/repos/Alecler12/5MCSI_Metriques/commits'
+    response = requests.get(url)
+    data = response.json()
+
+    # Analyser les horodatages des commits pour extraire les minutes
+    commit_minutes = {}
+    for commit in data:
+        commit_time = datetime.strptime(commit['commit']['author']['date'], "%Y-%m-%dT%H:%M:%SZ")
+        minute = commit_time.minute
+        commit_minutes[minute] = commit_minutes.get(minute, 0) + 1
+
+    # Préparer les données pour l'histogramme
+    results = [{'minute': minute, 'commits': count} for minute, count in commit_minutes.items()]
+
+    return jsonify(results=results)
+
+
+
 if __name__ == "__main__":
   app.run(debug=True)
